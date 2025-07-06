@@ -80,7 +80,8 @@ header,nav...등 의미론적 태그는 종류가 많지만 사이트 만들다 
 label: 입력받으려는 데이터의 종류 
 input : 사용자로부터 데이터를 입력받음. 이때 타입을 설정함으로서 비번,메일,전화번호등 각각의 맞게 입력받기 가능 
 ### 예시
-    ```html
+
+```html
     <form action="">
         <div>
             <label for="username">아이디</label>
@@ -92,7 +93,7 @@ input : 사용자로부터 데이터를 입력받음. 이때 타입을 설정함
         </div>
         <input type="submit" value="제출하기">
     </form>
-    ```
+```
  
 
  
