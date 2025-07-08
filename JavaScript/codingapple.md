@@ -133,3 +133,96 @@ body태그에 클래스를 선언해서 버튼 누를때마다 클래스가 바�
 var: 자유로운 변수 
 let : 재선언 못함.
 const : 재선언도 못하고 재할당도 못함. 
+
+
+## 시간 관련 문법 
+`setTimeout(function(){}, 1000)` : 1초 뒤에 실행
+`setInterval(function(){}, 1000)` : 1초마다 특정 함수를 시행
+
+저 function자리에 다른 함수를 넣을수도 있음. 대신 `함수()`가 아니라`함수`꼴로 넣어야한다.
+
+
+## 캐러셀 만들기 
+![alt text](캡처2-1.png)
+이런식으로 3개를 길게 이어붙이고 이동시키면 됨 
+
+## 스크롤 관련 
+`window.addEventListener('scroll',function(){});`으로 스크롤을 감지할 수 있다. 
+`window.scrollTo(0,100)`으로 특정 좌표로 화면을 이동시킬수 있다. 
+현재 스크롤의 위치를 알려면 `console.log(window.scrollY)`으로 얼만큼 y축으로 내려갔는지 확인가능 
+
+스크롤을 응용해서 스크롤을 100정도 내리면 로고를 작게 한다던지 구현 가능 
+
+## 외부 자바스크립트 가져오는법 
+원하는 곳에 `<script src="tab.js"></script>` 넣으면 됨 
+
+
+## 쓸만한 자바스크립트 라이브러리 
+1. Swiper 
+이미지 슬라이드 되는거 쉽게 만들어줌 
+
+2. Chart.js 
+차트 만들어줌 
+
+3. Animate On Scroll
+스크롤 내리면 요소가 서서히 등장하는 애니메이션을 만들고 싶을 때 쓰면 좋음
+
+
+## 어레이/오브젝트 
+`var car=['소나타' , 50000, 'white'];` -> 어레이
+`var car2={name:'소나타',price:50000};`->오브젝트 
+파이썬의 리스트, 딕셔너리랑 같네 
+
+## 랜더링 방식 
+서버가 클라이언트에게 html문서를 보낼때는 두가지 방식이 있다.
+1. `server-side rendering`: 서버에서 완성된 html을 준비하고 배포하기 
+2. `client-side rendering`: 빈html파일+ 데이터를 같이 보내고 클라이언트쪽에서 js를 돌려서 html을 완성시키게 하기
+
+## 백틱 활용
+문자열 사이에 변수를 넣고싶으면 `'문자열'+변수+'문자열'` 이런식으로 해도 되지만 
+백틱을 활용해서 `'문자열${변수}문자열'` 이런식으로 해도 됨
+
+
+## forEach, for in반복문 
+`forEach`는 어레이(리스트), `for in`은 오브젝트(딕셔너리)용이다. 
+```JAVASCRIPT
+var pants=[28,30,32]
+pants.forEach(function(val,index){
+  console.log(val)
+})
+```
+이런식으로 리스트를 순회하면서 그 값을 val에 저장해준다. 
+인덱스도 알 수 있는데 선택이라 안해도 되긴 함 
+> 자꾸 ()안에 function 넣는데(콜백함수라고 함) 이거 왜 넣냐면 자바스크립트 만든사람이 이렇게 하래요
+
+```JAVASCRIPT
+var obj={ name : 'kim', age : 20 }
+for (var key in obj){
+  console.log(key)
+}
+```
+딕셔너리는 이런식으로 for in을 쓰자(이건 파이썬이랑 비슷하네)
+
+
+## arrow function
+지금까지 function이라는 키워드를 많이 썼다. 
+근데 이거 좀 더 간편하게 쓸 수 있는데 그게 arrow function임 
+
+`function(a)` 대신에 `(a)=>` 쓰면됨. 
+
+
+## JS로 HTML 생성하는법 
+
+```JAVASCRIPT
+<div id="test">
+  
+</div>
+
+<script>
+  var a = '<p>안녕</p>';
+  document.querySelector('#test').insertAdjacentHTML('beforeend', a);
+</script>
+```
+이렇게 하면 test아이디를 가진 div 태그 안쪽 맨 밑에 추가하라는 뜻이다. 
+
+만약 특정 태그 안의 내용을 전부 초기화 즉 없애고 싶으면 그 태그를 찾아서 `innerHTML=''` 해주면 된다

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bootstrap demo</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    <div class="container mt-5">
+      <ul class="list">
+        <li class="tab-button">Products</li>
+        <li class="tab-button orange">Information</li>
+        <li class="tab-button">Shipping</li>
+      </ul>
+      <div class="tab-content">
+        <p>상품설명입니다. Product</p>
+      </div>
+      <div class="tab-content show">
+        <p>스펙설명입니다. Information</p>
+      </div>
+      <div class="tab-content">
+        <p>배송정보입니다. Shipping</p>
+      </div>
+    </div>
+    <script src="tab.js"></script>
+
+    <div class="container mt-3">
+      <div class="card p-3">
+        <span id="name">상품명</span>/<span id="price">가격</span>
+      </div>
+    </div>
+
+    <form class="container my-5 form-group">
+      <p>상품선택</p>
+      <select class="form-select mt-2">
+        <option>모자</option>
+        <option>셔츠</option>
+        <option>바지</option>
+      </select>
+
+      <select class="form-select mt-2" style="display: none">
+        <option>95</option>
+        <option>100</option>
+        <option>105</option>
+      </select>
+    </form>
+
+    <div id="test"></div>
+
+    <script>
+      var templete = "<p>안녕</p>";
+      document.querySelector("#test").insertAdjacentHTML("beforeend", templete);
+    </script>
+
+    <script>
+      var pants = [28, 30, 32];
+
+      var a = document
+        .querySelector(".form-select")
+        .addEventListener("input", function () {
+          if (document.querySelector(".form-select").value == "셔츠") {
+            document.querySelectorAll(".form-select")[1].style.display =
+              "block";
+            document.querySelectorAll(".form-select")[1].innerHTML =
+              "<option>95</option><option>100</option><option>105</option>";
+          } else if (document.querySelector(".form-select").value == "바지") {
+            document.querySelectorAll(".form-select")[1].style.display =
+              "block";
+            document.querySelectorAll(".form-select")[1].innerHTML = "";
+            pants.forEach(function (a) {
+              document
+                .querySelectorAll(".form-select")[1]
+                .insertAdjacentHTML("beforeend", `<option>${a}</option>`);
+            });
+          } else {
+            document.querySelectorAll(".form-select")[1].style.display = "none";
+          }
+        });
+
+      var car = ["소나타", 50000, "white"];
+
+      var car2 = { name: "소나타", price: [50000, 3000, 4000] };
+      document.querySelector("#name").innerHTML = car2["name"];
+      document.querySelector("#price").innerHTML = car2["price"][0];
+    </script>
+  </body>
+</html>
