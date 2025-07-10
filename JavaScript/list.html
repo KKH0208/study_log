@@ -14,46 +14,175 @@
     <link rel="stylesheet" href="main.css" />
   </head>
   <body>
-
-    <div class="card-group container">
-  <div class="card">
-    <img src="https://placehold.co/600">
-    <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p>가격 : <span class="card-price">70000</span></p>
-      <button class="btn btn-danger">주문하기</button>
+    <div class="container">
+      <div class="row">
+        <!-- 여기에 html삽입해야함 -->
+      </div>
     </div>
-  </div>
-  <div class="card">
-    <img src="https://placehold.co/600">
-    <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p>가격 : <span class="card-price">70000</span></p>
-      <button class="btn btn-danger">주문하기</button>
+    <div class="container">
+      <button class="btn btn-danger" id="more">더보기</button>
     </div>
-  </div>
-  <div class="card">
-    <img src="https://placehold.co/600">
-    <div class="card-body">
-      <h5 class="card-title">Card title</h5>
-      <p>가격 : <span class="card-price">70000</span></p>
-      <button class="btn btn-danger">주문하기</button>
+
+    <div class="container">
+      <button class="btn btn-danger " id="sort">가격정렬</button>
     </div>
-  </div>
-</div>
+    <div class="container">
+      <button class="btn btn-danger " id="name-sort">상품명 정렬</button>
+    </div>
+    <div class="container">
+      <button class="btn btn-danger" id="6man-sort">6만원이하만</button>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+      var click_cnt = 1;
+      var new_data;
+      document.querySelector("#more").addEventListener("click", function () {
+        
+          $.get(`http://codingapple1.github.io/js/more${click_cnt}.json`).done(function (
+            data
+          ) {
+            console.log(data);
 
-<script>
-  var products = [
-    { id : 0, price : 70000, title : 'Blossom Dress' },
-    { id : 1, price : 50000, title : 'Springfield Shirt' },
-    { id : 2, price : 60000, title : 'Black Monastery' }
-  ];
+            data.forEach((a, i) => {
+              var temp = `<div class="col-sm-4">
+          <img src="https://placehold.co/600" class="w-100" />
+          <h5>${data[i].title}</h5>
+          <p>가격 : ${data[i].price}</p>
+        </div>`;
+              document
+                .querySelector(".row")
+                .insertAdjacentHTML("beforeend", temp);
+            });
+          });
+          click_cnt++
+        });
+       
+          
+        
 
-    for(let i=0;i<3;i++){
-        document.querySelectorAll('.card-body h5')[i].innerHTML=products[i]['title']
-        document.querySelectorAll('.card-price')[i].innerHTML=products[i]['price']
-    }
-</script> 
+    </script>
 
+
+
+
+
+
+    <script>
+      var products = [
+        { id: 0, price: 70000, title: "Blossom Dress" },
+        { id: 1, price: 50000, title: "Springfield Shirt" },
+        { id: 2, price: 60000, title: "Black Monastery" },
+      ];
+      var arr=[1,2,3];
+      var newArr=JSON.stringify(arr);
+      localStorage.setItem('num',newArr)
+      var 꺼낸거=localStorage.getItem('num')
+      console.log(JSON.parse(꺼낸거)[0])
+
+
+
+
+
+
+
+
+
+      var temp = `<div class="col-sm-4">
+          <img src="https://placehold.co/600" class="w-100" />
+          <h5>Card title</h5>
+          <p>가격 : <span id='price'>70000</span></p>
+          <button class='buy'>구매</button>
+           
+        </div>`;
+      for (let i = 0; i < 3; i++) {
+        document.querySelector(".row").insertAdjacentHTML("beforeend", temp);
+        document.querySelectorAll("h5")[i].innerHTML = `${products[i].title}`;
+        document.querySelectorAll("#price")[
+          i
+        ].innerHTML = `${products[i].price}`;
+      }
+
+
+
+      document.querySelector('#sort').addEventListener('click',function(){
+        products.sort(function(a,b){
+          return a.price-b.price
+        })
+        document.querySelector(".row").innerHTML=''
+for (let i = 0; i < 3; i++) {
+        document.querySelector(".row").insertAdjacentHTML("beforeend", temp);
+        document.querySelectorAll("h5")[i].innerHTML = `${products[i].title}`;
+        document.querySelectorAll("#price")[
+          i
+        ].innerHTML = `${products[i].price}`;
+      }
+
+      })
+
+
+
+      
+      document.querySelector('#name-sort').addEventListener('click',function(){
+        products.sort(function(a,b){
+          if (a.title<b.title){
+            return 1 
+          }else{
+            return -1
+          }
+        })
+        document.querySelector(".row").innerHTML=''
+for (let i = 0; i < 3; i++) {
+        document.querySelector(".row").insertAdjacentHTML("beforeend", temp);
+        document.querySelectorAll("h5")[i].innerHTML = `${products[i].title}`;
+        document.querySelectorAll("#price")[
+          i
+        ].innerHTML = `${products[i].price}`;
+      }
+
+      })
+/**
+     document.querySelector('#6man-sort').addEventListener('click',function(){
+        new_products=products.filter(function(a){
+          return a.price<=60000
+        })
+        document.querySelector(".row").innerHTML=''
+        for (let i = 0; i < 3; i++) {
+        document.querySelector(".row").insertAdjacentHTML("beforeend", temp);
+        document.querySelectorAll("h5")[i].innerHTML = `${new_products[i].title}`;
+        document.querySelectorAll("#price")[
+          i
+        ].innerHTML = `${new_products[i].price}`;
+      }
+
+      })
+*/
+
+
+      $('.buy').click(function(e){
+
+        var title= $(e.target).siblings('h5').html();
+
+
+        if (localStorage.getItem('cart') !=null){
+          var 꺼낸거=JSON.parse(localStorage.cart);
+          꺼낸거.push(title)
+          localStorage.setItem('cart',JSON.stringify(꺼낸거))
+
+        }else{
+        localStorage.setItem('cart',JSON.stringify([title]))
+
+        }
+      })
+
+
+
+    </script>
+
+    <script>
+      var array=[5,2,4,60,7];
+      array.sort(function(a,b){
+        return a-b
+      });
+    </script>
   </body>
 </html>

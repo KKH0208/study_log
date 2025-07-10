@@ -226,3 +226,90 @@ for (var key in obj){
 이렇게 하면 test아이디를 가진 div 태그 안쪽 맨 밑에 추가하라는 뜻이다. 
 
 만약 특정 태그 안의 내용을 전부 초기화 즉 없애고 싶으면 그 태그를 찾아서 `innerHTML=''` 해주면 된다
+
+
+## get/post/ajax
+get요청이란 서버에 데이터를 달라고 요청하는것이다. url을 이용해서 요청하면 된다. 
+post요청이란 반대로 내가 서버에 데이터를 보내는것이다. 댓글쓰기 같은것도 post요청을 하는것이다. 그래야 내 댓글이 서버에 가서 다른사람도 보지. 
+post요청을 하는 법은 `<form action="/보낼주소" method="post"></form>` 이렇게 보내면 된다. 
+근데 문제는get을 하든 post를 하든 페이지가 새로고침된다는 것이다. 
+그래서 새로고침 안하고 get/post요청하는 기능이 ajax이다. 
+
+활용법은 예를들어 상품더보기를 누르면 새로고침 없이 서버에 데이터 받아와서 보여준다던지? 
+
+## ajax로 get요청하는법 
+ajax는 jQuery를 사용하면 쉽기때문에 이번에만 jQuery문법으로 설명함. 
+`$.get('https://www.kkh0208.duckdns.org/hello.txt').done(function(data){console.log(data)})`
+이런식으로 주소를 넣으면 그 주소에 있는 데이터를 변수 data(맘대로 작명하셈)로 가져올 수 있다. 
+만약 실패했을때 ~~한 코드를 실행시키고 싶으면 마지막에 
+`.fail(function(){console.log('gg')});`를 붙이면 된다. 
+
+실제로 내 서버의 /var/www/html에 hello.txt.를 만들고 get요청을 날렸더니 실제로 텍스트파일 내용을 받아올 수 있었다. 
+다만, 같은 디렉토리에 .htaccess파일을 만들어서 
+`<IfModule mod_headers.c>Header set Access-Control-Allow-Origin "*"</IfModule>`을 입력해서 모든 도메인에 대해 get요청이 가능하도록 세팅해야 한다. 
+그리고 `/etc/apache2/apache2.conf`설정파일에 들어가서 `/var/www/html`의 `AllowOverride None`를 `AllowOverride All`로 바꿔주고 서버 재시작 하면 된다. 
+
+약간여담이였음 
+
+## ajax로 post요청하는법 
+`$.post('https://www.kkh0208.duckdns.org/hello.txt', {name:'KIM'}).done(function(data){console.log(data)})` 이렇게 보내면 끝임. 
+단, 위처럼txt파일에 보내면 안되고 php,node.js같은 스크립트가 있어야 한다고 함.
+
+
+## 배열 오름차순 정렬하는법 
+```JAVASCRIPT
+var array=[5,2,4,60,7];
+array.sort(function(a,b){
+      return a-b
+});
+```
+문자열은 그냥 sort하면 되는데 숫자는 저렇게 해줘야 함 
+
+## filter
+배열에서 원하는것만 남기고 나머지는 삭제하려면 
+```JAVASCRIPT
+var array=[5,2,4,60,7];
+var new_array=array.filter(function(a){
+      return a<4
+}); //4보다 작은 것만 남기기
+```
+필터해도 원본 배열은 그대로이기 때문에 새 배열에 결과를 저장해서 써야한다. 
+
+
+## map 
+배열 안 자료를 전부 변형하려면 
+```JAVASCRIPT
+var array=[5,2,4,60,7];
+var new_array=array.map(function(a){
+      return a*4
+}); //전부 4배하기
+```
+
+
+## localStorage
+장바구니 같이 무언가를 저장해야할때 어디에 저장을 해야할까? 
+변수에다 저장하면 새로고침 할때마다 장바구니가 초기화 될것이다. 
+그래서 개발자도구에 보면 application에 여러가지 storage가 있다. 
+일단 `local storage`는 유저가 직접 삭제하지 않는 한 반영구적으로 존재한다. 
+`Session storage`는 새로고침할때마다 사라진다. 
+둘다 키-벨류 쌍으로 저장함. 
+
+`localStorage.setItem('이름','kim')`이런식으로 저장하면 됨 
+저장한 자료를 뽑아서 쓸때는 `localStorage.getItem('이름')`
+자료를 삭제하려면 `localStorage.removeItem('이름')`
+
+
+그런데 기본적으로 localstorage는 문자만 저장가능하다. 따라서 어레이를 저장할때는 json형식으로 저장해야 안전하다. 
+```JAVASCRIPT
+      var arr=[1,2,3]; //이 놈을 저장하고 싶으면 
+      var newArr=JSON.stringify(arr);  //일단 JSON으로 변환해주고 
+      localStorage.setItem('num',newArr)
+      var 꺼낸거=localStorage.getItem('num')
+      console.log(JSON.parse(꺼낸거)[0]) //다시 어레이로 parse해줘야 한다. 
+```
+localStorage대신에 sessionStorage라고 바꾸면 세션으로 저장된다 
+
+만약 localStorage내용을 수정하려면 아쉽게도 그런 함수는 없으니 
+1. 자료 꺼내서 
+2. 꺼낸거 수정해서 
+3. 다시 저장해야함 
