@@ -10,13 +10,14 @@ for i in {2..9}; do
     for j in {2..9}; do
         echo "$i * $j = $((i*j))"
     done
-done
+done 
 ```
 
 # 2. 사용자로부터 숫자 3개를 입력받아 합계를 출력하는 스크립트를 작성하시오.
 
 ```bash
 #!/bin/bash
+
 echo "input three number"
 read a b c
 sum=$((a+b+c))
