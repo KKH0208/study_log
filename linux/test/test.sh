@@ -1,11 +1,15 @@
-#!/bin/bash
-#tar와 find 결합: /var/www/html 디렉토리 내에서 최근 7일 이내에 수정된 .php 파일들을 찾아, 이 파일들만 backup.tar.gz 파일로 압축하는 스크립트를 작성하세요.
+#!/bin/bash 
+echo "확장자를 입력하세요: " 
+read option 
+total_byte=$(find /data -name "*$option" -type f -exec du -b {} + | awk '{sum+=$1} END {print sum}')
+total_mb=$((total_byte/1024/1024))
+
+echo "확장자: $option, 총 용량: ${total_mb}Mb"
 
 
-
-find /var/www/html -mtime -7 -type f -name "*.php" -print0 | xargs -0 tar czvf backup.tar.gz 
-
-#find ~~~ -print0  이렇게 맨 뒤에 붙여주면 파일사이에 널문자(파일의 끝을 알려줌)를 삽입해줌. 눈에는 안보이지만 
-#xargs는 표준 입력으로 받은 데이터를 명령어의 인자로 만들어 실행해주는 명령어
-#위 코드처럼 쓰면 널문자 기준으로 인자를 구분해서 tar명령어의 인자로 넘겨줌 
-
+#du -b 로 해야 바이트 단위로 나와서 정확한 계산 가능. 
+# `find … -exec 명령 {} \;` 이건 명령을 파일 개수마다 실행 -> 느림 
+# `find … -exec 명령 {} +` 하나의 파일로 만들어서 명령 실행 -> 빠름 
+#  그래서 명령이 한꺼번에 처리 가능한 명령이라면 앵간하면 + 하면 빠름 
+# sum변수는 awk안에서 선언한 변수는 초기값0보장 
+# awk '{ } END { } ' 이런식으로 앞에 다 끝나면 엔드 뒤 실행도 가능 

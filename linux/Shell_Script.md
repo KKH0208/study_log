@@ -453,6 +453,297 @@ xargs는 표준 입력으로 받은 데이터를 명령어의 인자로 만들�
 
 
 
+# 29. 배열과 파일 처리: 현재 디렉토리에서 확장자가 .sh인 모든 셸 스크립트 파일의 이름을 배열에 저장한 후, 가장 크기가 큰 파일 이름과 가장 작은 파일 이름을 출력하는 스크립트를 작성하세요.
+```bash
+#!/bin/bash
+arr=( *.sh ) #이러면 현재 디렉토리만 볼 수 있음 
+
+if [ ${#arr[@]} -eq 0 ]; then
+    echo "no .sh file exists"
+    exit 1 
+fi 
+
+max_file=""
+max_size=0
+min_file=""
+min_size=1000000000000 
+
+for file in "${arr[@]}"; do
+     size=$(stat -c %s "$file")
+     if [ $max_size -lt $size ]; then
+        max_size=$size
+        max_file=$file
+    fi
+
+    if [ $min_size -gt $size ]; then 
+        min_size=$size
+        min_file=$file
+    fi
+
+done
+
+echo "max file : $max_file"
+echo "min file : $min_file"
 
 
+# 기본적으로 숫자만 나오면 바이트 단위이기 때문에 000붙일때마다 단위가 올라감. 위에선  1테라를 상한으로.
+
+```
+# 30. 프로세스 관리 및 자동화: cron 서비스가 실행 중인지 확인하는 스크립트를 작성하세요. 만약 서비스가 중지되어 있으면 자동으로 시작시키고, "cron 서비스가 시작되었습니다."라는 메시지를 출력하세요. 실행 중이면 실행중이라고 출력하시오 
+```bash
+#!/bin/bash
+if [ $(systemctl status crond | grep "active (running)" | wc -l ) -eq 1 ]; then 
+    echo "cron is activated "
+else 
+    sudo systemctl start crond 
+    echo "cron is started "
+fi 
+
+```
+
+#근데 위에 방식은 좀 복잡하니 밑에로 쓰는게 깔끔 
+
+```bash
+if systemctl is-active --quiet crond ; then 
+    echo "cron is activated "
+else 
+    sudo systemctl start crond 
+    echo "cron is started "
+fi 
+```
+
+#이러면 --quite로 인해 가동중이면 0, 아니면 1을 반환하게됨 
+
+
+
+
+
+
+# 31. 로그 분석 응용: /var/log/secure 파일에서 최근 3일 동안 로그인에 실패한 사용자 계정 목록과 실패 횟수를 순서대로 출력하는 스크립트를 작성하세요. (로그 파일이 없는 경우 임의로 내용을 만들어 사용하세요.)
+```bash
+#!/bin/bash 
+
+date=$(date -d '0 day ago' '+%b %e' ) # %b는 영어 월, %e는 영어 일, -d day ago하면 오늘 기준 전날 날이 나오네..
+date="$date|$(date -d '1 day ago' '+%b %e' )"
+date="$date|$(date -d '2 day ago' '+%b %e' )"
+
+sudo grep -E "$date" /var/log/secure | grep -E  "authentication failure|Failed password" | \
+awk -F'user=' '{print $2}' | awk '{print $1}' | \
+sort | uniq -c | sort -nr # 일단 정렬하고, 정렬된 데이터를 "나온수 이름" 포멧으로 바꾸고, 다시 숫자(n) 기준으로 내림차순(r)
+
+```
+로그인 실패 로그는 다음과 같은 형태이다 
+`Aug 22 08:38:09 ip-172-31-35-228 su[2114]: pam_unix(su-l:auth): authentication failure; logname=ec2-user uid=1000 euid=0 tty=/dev/pts/0 ruser=ec2-user rhost=  user=user01`
+
+logname이랑 ruser의 차이는 모르겠다.. 암튼 ec2-user가 user=user01계정에 로그인 시도했지만 authentication failure가 떴다는 것을 알 수 있음. 
+
+근데 실제로는 다양한 인증실패 유형이 있어서 저게 답은 아님.. 다양한 조건분기가 더 필요하긴 하겠다..
+
+
+# 32. 함수와 매개변수 응용: 함수를 하나 만들고, 이 함수에 "all", "start", "stop" 중 하나의 인자를 전달하면, 각 인자에 따라 "모든 서비스", "시작 서비스", "중지 서비스"를 출력하는 스크립트를 작성하세요.
+```bash
+#!/bin/bash 
+
+func(){
+    case $1 in
+        all) 
+            echo "all service"  
+            ;;
+        start)
+            echo "start service"
+            ;;
+        stop) 
+            echo "stop service"
+            ;;
+        *) 
+            echo "Invalid option. Please enter all, start, or stop."
+            ;;
+    esac 
+
+}      
+
+echo "input the option"
+read option 
+func "$option"
+```
+
+
+# 33 . 파일 동기화 및 조건부 실행: /data/source 디렉토리와 /data/dest 디렉토리의 파일 개수를 비교하여, source 디렉토리의 파일이 더 많을 경우 rsync 명령어로 두 디렉토리를 동기화하는 스크립트를 작성하세요. 동기화 후 성공 메시지를 출력하세요.
+```bash
+#!/bin/bash 
+
+home="/Users/yourname/Desktop/git/study_log/linux/test"
+source="$home/data/source"
+dest="$home/data/dest"
+
+if [ ! -d $source ]; then 
+    echo "source dir is not exist"
+    exit 1 
+fi 
+
+if [ ! -d $dest ]; then 
+    echo "dest dir is not exist"
+    exit 1 
+fi 
+
+source_num=$(find $source -type f | wc -l)
+dest_num=$(find $dest -type f | wc -l)
+
+if [ ${source_num} -gt ${dest_num}  ]; then 
+    echo "source dir has more file. start synchronizaion..."
+    rsync -av --progress "$source"/ "$dest"/ # a: 모든 옵션 한번에 적용  v: 무슨 파일 동기화됬는지 progress: 실시간 완료도
+    # 참고로 파일 이름에 공백 있을까봐 ""로 감싼거고, 관례적으로 마지막에 /붙인다고 함(안붙이면 안 내용이 아니라 디렉토리부터 동기화돼서?)
+
+    if [ $? -eq 0 ]; then 
+        echo "sync success"
+    else
+        echo "error occured"
+    fi 
+else 
+    echo "already synchronized"
+fi 
+
+```
+
+# 34 /var/log/secure 파일에서 최근 7일 동안 특정 사용자(ec2-user)의 로그인 성공/실패 횟수를 집계하는 스크립트를 작성하세요.
+### 출력 형식은 다음과 같이 하세요:
+### ec2-user: 성공 10회, 실패 3회
+
+임시 파일은 
+```
+Aug 22 08:00:01 ip-172-31-35-228 sshd[1010]: Accepted password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 22 08:05:12 ip-172-31-35-228 sshd[1011]: Failed password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 22 09:15:22 ip-172-31-35-228 sshd[1012]: Accepted password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 21 07:45:10 ip-172-31-35-228 sshd[1013]: Failed password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 21 08:00:00 ip-172-31-35-228 sshd[1014]: Accepted password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 20 12:30:01 ip-172-31-35-228 sshd[1015]: Failed password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 20 12:35:05 ip-172-31-35-228 sshd[1016]: Accepted password for ec2-user from 1.2.3.4 port 22 ssh2
+
+```
+라고 하자. 
+
+```bash
+#!/bin/bash 
+path="./secure.log"
+user="ec2-user"
+success=$(grep "Accepted password for $user" "$path" | wc -l | xargs )
+fail=$(grep "Failed password for $user" "$path" | wc -l | xargs)
+
+echo -e "username: $user \nsuccess : $success \nfail: $fail "
+
+```
+
+약간 무식한 방법이긴 하네.. 근데 제일 정확한 방법인거 같기도 하고.. 
+
+# 35. 서버에 있는 /var/log 디렉토리 내 모든 .log 파일의 용량을 확인하고, 용량이 10MB 이상인 파일만 출력하는 스크립트를 작성하세요.
+### 출력 형식 예시는 다음과 같이 하세요:  
+### 파일명: /var/log/messages, 용량: 15MB
+### 파일명: /var/log/secure, 용량: 12MB
+
+```bash
+#!/bin/bash 
+
+path="/var/log"
+size_limit=10M
+find $path -name "*.log" -type f -size +$size_limit -exec du -h {} \; | while read size file; do 
+    echo "file name: $file, volumn: $size " 
+done 
+```
+
+# 36 /etc/passwd 파일에서 로그인 쉘이 /bin/bash인 사용자만 출력하는 스크립트를 작성하세요.
+### 출력 형식:
+### 사용자명: root
+### 사용자명: user1
+```bash
+#!/bin/bash 
+
+while read line; do 
+    shell=$(echo "$line" | awk -F':' '{print $7}')
+    if [ $shell = "/bin/bash" ]; then 
+        username=$(echo "$line" | awk -F':' '{print $1}')
+        echo "username: $username"
+    fi 
+done < /etc/passwd 
+```
+근데 이거 awk만 쓰면 한줄로 끝낼 수 있음 
+`awk -F':' '$7 == "/bin/bash" {print "username: " $1} /etc/passwd'`
+
+awk에서 비교는 무조건 `==` 연산자만 써야함. `=`는 대입임 
+
+# 37 /tmp 디렉토리 내 모든 파일과 디렉토리의 권한을 확인하고, 실행 권한이 있는 파일만 출력하는 스크립트를 작성하세요.
+### 출력 형식:
+### 파일명: /tmp/test.sh, 권한: -rwxr-xr-x
+### 파일명: /tmp/runme, 권한: -rwx------
+```bash
+#!/bin/bash 
+sudo find /tmp -type f -executable | while read file; do 
+    perm=$(ls -l $file | awk '{print $1}' )
+    echo "file name: $file, perm : $perm "
+done
+```
+
+`find /tmp -type f | while read file; do ... done` 이런식으로 결과를 한줄씩 넘겨서 file변수가 읽던지 
+`while read file; do ... done < filelist.txt` 이런식으로 파일로 읽던지 
+내부 동작이야 다르지만 결국 출력은 같다 이말이네..
+
+# 38 /var/log/wtmp 파일에는 시스템에 로그인/로그아웃 기록이 남아 있습니다. last 명령어를 이용해서 최근 로그인한 사용자 목록과 로그인 횟수를 출력하는 스크립트를 작성하세요.
+### 조건:
+### 사용자명과 로그인 횟수를 출력
+### 내림차순으로 로그인 횟수가 많은 순서로 정렬
+
+### 출력 예시:
+### 사용자명: ec2-user, 로그인 횟수: 12
+### 사용자명: root, 로그인 횟수: 3
+
+### 참고로 내부 정책으로 따로 백업해놓지 않는한 wtmp에는 모든 엣날 기록까지 다 남아있음 
+
+```bash
+#!/bin/bash 
+
+last | awk '{print $1}' |grep -v "^$"| grep -v "wtmp"|  sort | uniq -c | sort -nr | awk '{print "사용자명: " $2 ", 로그인 횟수:" $1}'
+
+```
+last명령 하면 빈 줄도 있고 wtmp만 출력되는 줄이 있기 때문에 그 패턴은 다 없애고 시작. 
+빈줄은 `grep -v "^$"`로 없애자. ""하면 모든 줄이 매칭되니 하지 말고. 
+저 소트 유니크 소트 패턴은 엄청 자주 나오네 
+
+
+# 39 /var/log 디렉토리와 /home/username 디렉토리가 있다. 각 디렉토리 안에 있는 일반 파일 개수를 세어서 파일수가 더 많은 디렉토리 
+# 출력하고 같으면 같다고 출력하라 
+
+```bash 
+#!/bin/bash 
+
+log_num=$(sudo find /var/log -type f | wc -l)
+user_num=$(sudo find ~ -type f | wc -l)
+
+if [ $log_num -gt $user_num ]; then 
+    echo "log has more file : $log_num"
+elif 
+    [ $user_num -gt $log_num ]; then 
+    echo "user has more file: $user_num "
+else
+    echo "same"
+fi 
+
+```
+
+# 40 /data 디렉토리에서 사용자가 입력한 확장자를 가진 파일들을 찾고 그 파일들의 **총 용량(MB 단위)**을 계산하여 출력하세요.
+### ex: 확장자: .log, 총 용량: 152MB
+```bash
+#!/bin/bash 
+echo "확장자를 입력하세요: " 
+read option 
+total_byte=$(find /data -name "*$option" -type f -exec du -b {} + | awk '{sum+=$1} END {print sum}')
+total_mb=$((total_byte/1024/1024))
+
+echo "확장자: $option, 총 용량: ${total_mb}Mb"
+```
+
+du -b 로 해야 바이트 단위로 나와서 정확한 계산 가능. 
+`find … -exec 명령 {} \;` 이건 명령을 파일 개수마다 실행 -> 느림 
+`find … -exec 명령 {} +` 하나의 파일로 만들어서 명령 실행 -> 빠름 
+그래서 명령이 한꺼번에 처리 가능한 명령이라면 앵간하면 + 하면 빠름 
+sum변수는 awk안에서 선언한 변수는 초기값0보장 
+awk '{ } END { } ' 이런식으로 앞에 다 끝나면 엔드 뒤 실행도 가능 
 
