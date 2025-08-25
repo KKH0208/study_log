@@ -747,3 +747,87 @@ du -b 로 해야 바이트 단위로 나와서 정확한 계산 가능.
 sum변수는 awk안에서 선언한 변수는 초기값0보장 
 awk '{ } END { } ' 이런식으로 앞에 다 끝나면 엔드 뒤 실행도 가능 
 
+
+# 41 현재 디렉토리에 있는 모든 파일 이름을 대상으로 파일 이름에 공백이 있으면 언더바(_)로 변경, 변경한 파일 이름과 변경 전 이름을 출력하시오 
+
+```bash 
+#!/bin/bash
+# 41 현재 디렉토리에 있는 모든 파일 이름을 대상으로 파일 이름에 공백이 있으면 언더바(_)로 변경, 변경한 파일 이름과 변경 전 이름을 출력하시오 
+
+for file in *; do 
+    [ -f "$file" ]  || continue 
+    if [[ $file =~ \  ]]; then 
+        newname=${file// /_}
+        mv "$file" $newname
+        echo "변경 전 : $file"
+        echo "변경 후 : $newname"
+    fi 
+done 
+
+```
+${변수//찾을문자/바꿀문자} 이런식으로 공백을 _로 바꿀 수 있네. 
+`[[ $file =~ \  ]]` 이건 왼쪽 문자열이 오른쪽 정규식에 맞는지 확인. 공백은 여기선 '\ '으로 표기. 따라서 공백이  하나라도 있으면 참 
+
+# 42 시스템의 메모리 사용량을 확인하고, 만약 사용률이 80% 이상이면"메모리 사용량이 높습니다."라는 경고 메시지를 출력하고, 그렇지 않으면 "정상입니다."라는 메시지를 출력하는 스크립트를 작성하세요.
+
+```bash 
+#!/bin/bash
+
+usage=$(free | awk '/Mem:/ {print int($3/$2 * 100.0)}')
+echo "usage: $usage"
+if [ $usage -ge 80 ]; then 
+    echo "메모리 사용량이 높습니다 "
+else
+    echo "정상입니다"
+
+fi
+```
+
+`awk ' /문자열/ {}'` 이거는 문자열이 포함되어있는 줄에 대해서만 {}을 실행하겠다는 뜻 
+
+
+# 43 서버 /var/log 안의 로그 파일(*.log)이 있습니다. 로그 형식은 다음과 같습니다
+```
+[2025-08-24 13:20:15] ERROR Failed to connect to DB
+[2025-08-24 13:20:20] INFO User login: kim
+[2025-08-24 13:21:05] WARN Disk usage 85%
+```
+### 모든 로그 파일(*.log)을 읽어 처리
+### 로그 레벨별(ERROR, WARN, INFO) 발생 횟수 계산
+### 최종 결과를 log_summary.txt에 출력
+
+출력 예시는 다음과 같음 
+
+
+```
+총 로그 수: 150
+ERROR: 10
+WARN: 5
+INFO: 135
+
+
+
+```bash
+#!/bin/bash
+
+out_file=log_summary.txt
+>"$out_file" # 이런식으로 파일에 아무내용없이 리다이랙션 하면 파일 없으면 만들어주고 있으면 초기화해줌 
+
+shopt -s nullglob # 배시셸 상세옵션 설정하는것. -s는 시작. 만약 .log로 끝나는 파일이 아무것도 없으면 *.log가 배열에 들어가는 것을 방지
+FILES=(/var/log/*.log)
+[ ${#FILES[@]} -eq 0 ] && { echo "no log file exist" >&2 ; exit 1; } # 표준 에러로 출력해야 나중에 관리 편함 
+
+
+ERROR=$(grep -h "ERROR" /var/log/*.log | wc -l)
+WARN=$(grep -h "WARN" /var/log/*.log | wc -l)
+INFO=$(grep -h "INFO" /var/log/*.log | wc -l)
+
+TOTAL=$((ERROR + WARN + INFO))
+
+echo "총 로그 수:$TOTAL" > "$out_file"
+echo "ERROR : $ERROR" >> "$out_file"
+echo "WARN : $WARN" >> "$out_file"
+echo "INFO : $INFO" >> "$out_file"
+echo >> "$out_file"
+
+```

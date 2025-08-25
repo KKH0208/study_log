@@ -1,15 +1,26 @@
-#!/bin/bash 
-echo "확장자를 입력하세요: " 
-read option 
-total_byte=$(find /data -name "*$option" -type f -exec du -b {} + | awk '{sum+=$1} END {print sum}')
-total_mb=$((total_byte/1024/1024))
-
-echo "확장자: $option, 총 용량: ${total_mb}Mb"
+#!/bin/bash
 
 
-#du -b 로 해야 바이트 단위로 나와서 정확한 계산 가능. 
-# `find … -exec 명령 {} \;` 이건 명령을 파일 개수마다 실행 -> 느림 
-# `find … -exec 명령 {} +` 하나의 파일로 만들어서 명령 실행 -> 빠름 
-#  그래서 명령이 한꺼번에 처리 가능한 명령이라면 앵간하면 + 하면 빠름 
-# sum변수는 awk안에서 선언한 변수는 초기값0보장 
-# awk '{ } END { } ' 이런식으로 앞에 다 끝나면 엔드 뒤 실행도 가능 
+
+out_file=log_summary.txt
+>"$out_file" # 이런식으로 파일에 아무내용없이 리다이랙션 하면 파일 없으면 만들어주고 있으면 초기화해줌 
+
+shopt -s nullglob # 배시셸 상세옵션 설정하는것. -s는 시작. 만약 .log로 끝나는 파일이 아무것도 없으면 *.log가 배열에 들어가는 것을 방지
+FILES=(/var/log/*.log)
+[ ${#FILES[@]} -eq 0 ] && { echo "no log file exist" >&2 ; exit 1; } # 표준 에러로 출력해야 나중에 관리 편함 
+
+
+ERROR=$(grep -h "ERROR" /var/log/*.log | wc -l)
+WARN=$(grep -h "WARN" /var/log/*.log | wc -l)
+INFO=$(grep -h "INFO" /var/log/*.log | wc -l)
+
+TOTAL=$((ERROR + WARN + INFO))
+
+echo "총 로그 수:$TOTAL" > "$out_file"
+echo "ERROR : $ERROR" >> "$out_file"
+echo "WARN : $WARN" >> "$out_file"
+echo "INFO : $INFO" >> "$out_file"
+echo >> "$out_file"
+
+
+
