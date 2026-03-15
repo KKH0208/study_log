@@ -1,0 +1,8 @@
+Aug 22 08:00:01 ip-172-31-35-228 sshd[1010]: Accepted password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 22 08:05:12 ip-172-31-35-228 sshd[1011]: Failed password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 22 09:15:22 ip-172-31-35-228 sshd[1012]: Accepted password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 21 07:45:10 ip-172-31-35-228 sshd[1013]: Failed password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 21 08:00:00 ip-172-31-35-228 sshd[1014]: Accepted password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 20 12:30:01 ip-172-31-35-228 sshd[1015]: Failed password for ec2-user from 1.2.3.4 port 22 ssh2
+Aug 20 12:35:05 ip-172-31-35-228 sshd[1016]: Accepted password for ec2-user from 1.2.3.4 port 22 ssh2
+
