@@ -474,3 +474,4 @@ native-vlan이란 별거아니고 vlan 태그가 달리지 않은 패킷이 왔�
 설정법은 `int f0/1` `switchport trunk native vlan 50`
 
 54까지함
+지금 하는게 중요한가? 싶으면 https://www.udemy.com/course/cisco-ccna-complete-guide-korean/ 에 나와있는 내용인지를 확인하면 될듯
