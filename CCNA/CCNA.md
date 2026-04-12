@@ -1487,3 +1487,5 @@ l2 multicast로 메세지를 주기적(60초)으로 광고함.
 
 설정도 cdp대신 lldp만 넣으면 됨.
 참고로 lldp는 기본적으로 비활성화 상태라서 `lldp run`을 해줘야 함.
+
+https://www.youtube.com/watch?v=P-76eugwVMo&list=PLLY4GrJf6yWwSYl0IJDfeQwKqfZjfW1XM&index=144 부터 보면 됨.
